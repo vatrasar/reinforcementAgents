@@ -16,7 +16,7 @@ class Game:
 
         episode=0
         start_time = time()
-        agent=self.load_form_file()
+        agent=Agent()
         while True:
             clock = pygame.time.Clock()
             elements_list: List[Block]=self.build_elements_list()
