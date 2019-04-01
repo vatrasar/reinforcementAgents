@@ -6,7 +6,7 @@ class Agent:
     def __init__(self):
         self.actions=range(0,4)
         self.q_table={}
-        self.exploration_rate=0.01
+        self.exploration_rate=1
         self.learning_rate = 0.7  # Learning rate
         self.gamma = 0.618  # Discounting rate
 
@@ -36,7 +36,7 @@ class Agent:
 
     def decrease_exploration_ratio(self):
         if self.exploration_rate>0.01:
-         self.exploration_rate-=0.1
+         self.exploration_rate-=0.01
 
 
 

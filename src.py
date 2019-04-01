@@ -6,17 +6,21 @@ from config import config
 import pickle
 import random
 from time import time
-
+from agentQN import AgentQN
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Game:
     def __init__(self,display):
         self.display=display
-
+        self.efctive_plot=[]
     def loop(self):
 
         episode=0
         start_time = time()
-        agent=Agent()
+        agent=AgentQN()
+        effective_table=[]
+
         while True:
             clock = pygame.time.Clock()
             elements_list: List[Block]=self.build_elements_list()
@@ -25,35 +29,46 @@ class Game:
             score=0
 
             episode+=1
-
+            if episode % 100 == 0:
+                self.compute_efective(effective_table)
+                effective_table = []
             while True:
+
                 self.display.fill(config['colors']['black'])
                 action,old_state = agent.get_action(elements_list)
                 self.agent_step(action, elements_list, hero)
                 drawn_elements_list = self.draw_elements(elements_list)
-                if time()-start_time>60:
-                    print("SAVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-                    start_time = self.save_to_file(agent, start_time)
+                #if time()-start_time>60:
+                    #print("SAVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                    # start_time = self.save_to_file(agent, start_time)
 
                 #result if die
                 if not(self.is_hero_alive(drawn_elements_list)) or score<-200:
-                    reward=-100
+                    reward=0
                     score+=reward
                     agent.upload_results(reward,action,old_state,elements_list)
                     # print("Przegrana score:"+str(score))
+                    effective_table.append(score)
+
                     break
                 #result if win o
                 if self.is_win(drawn_elements_list):
-                    reward = 100
+                    reward = 1
                     score += reward
                     agent.upload_results(reward,  action, old_state,elements_list)
-                    agent.decrease_exploration_ratio()
-                    # if episode%1000>900:
-                    print("Wygrana score:"+str(score)+"\nepisode:"+str(episode))
+                    agent.decrease_exploration_ratio(episode)
+                    effective_table.append(score)
+
+
+                    if episode%1000>900:
+
+                        print("Wygrana score:"+str(score)+"\nepisode:"+str(episode))
+
+
 
                     break
                 #result if not win or die
-                reward = -1
+                reward = 0
                 score += reward
                 agent.upload_results(reward,action, old_state,elements_list)
 
@@ -172,6 +187,16 @@ class Game:
         model = pickle.load(open_file)
         open_file.close()
         return model
+
+    def compute_efective(self,effective_list):
+        efective_table=np.asarray(effective_list)
+        sum=efective_table.sum()
+        efective=sum*1.0/efective_table.size
+        self.efctive_plot.append(efective)
+        efective_table=np.asarray(self.efctive_plot)
+        plt.plot(np.arange(efective_table.size),efective_table)
+        plt.show()
+
 
 
 
