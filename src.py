@@ -207,7 +207,7 @@ class Game:
         plt.plot(np.arange(efective_table.size),efective_table)
         plt.show()
     def get_state_size(self):
-        return (2+config["enemy_number"])*3
+        return int(config["game"]["height"]/config["game"]["block_size"]-1)*(config["game"]["width"]/config["game"]["block_size"]-1)
 
 
 

@@ -44,15 +44,13 @@ class AgentQN:
 
     def convert_to_state(self, elements_list: typing.List[Block]) -> np.ndarray:
         state_list=[]
-        map_shape=()
-        state=np.array(np.zeros([config]))
+        map_shape=(config["height"]/config["block_size"]-1,config["width"]/config["block_size"]-1)
+        state=np.array(np.zeros(map_shape))
         elements_types = {config["enemy"]:1,config["hero"]:2,config["target"]:3}
         for element in elements_list:
-            state_list.append(element.position[0])
-            state_list.append(element.position[1])
-            state_list.append(elements_types[element.name])
-        state_array=np.asarray(state_list,np.int32)
-        return state_array.reshape((1,state_array.shape[0]))
+            state[element.position[1],element.position[0]]=elements_types[element.name]
+
+        return state.reshape((1,state.shape[0]))
 
 
 

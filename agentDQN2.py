@@ -14,14 +14,14 @@ from block import Block
 
 class AgentDQN(object):
     def __init__(self, state_size, action_size):
-        self.state_size = state_size
+        self.state_size = int(state_size)
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.learning_rate = 0.01
         self.gamma = 0.99
         self.epsilon = 1
         self.exploration_min = 0.01
-        self.exploration_decay = 0.999
+        self.exploration_decay = 0.99
         self.brain = self._build_model()
 
     def _build_model(self):
@@ -44,13 +44,14 @@ class AgentDQN(object):
 
     def convert_to_state(self, elements_list: typing.List[Block]) -> np.ndarray:
         state_list=[]
+        map_shape=(int(config["game"]["height"]/config["game"]["block_size"]-1),int(config["game"]["width"]/config["game"]["block_size"]-1))
+        state=np.array(np.zeros(map_shape),dtype=np.int)
         elements_types = {config["enemy"]:1,config["hero"]:2,config["target"]:3}
         for element in elements_list:
-            state_list.append(element.position[0])
-            state_list.append(element.position[1])
-            state_list.append(elements_types[element.name])
-        state_array=np.asarray(state_list,np.int32)
-        return state_array.reshape((1,state_array.shape[0]))
+
+            state[int((element.position[1]-config["game"]["block_size"]/2)/config["game"]["block_size"]),int((element.position[0]-config["game"]["block_size"]/2)/config["game"]["block_size"])]=elements_types[element.name]
+
+        return state.reshape((1,state.shape[0]*state.shape[1]))
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))

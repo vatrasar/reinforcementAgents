@@ -1,7 +1,7 @@
 config={
     "game":{
-        "height":120,
-        "width":120,
+        "height":90,
+        "width":90,
         "fps":1000000,
         "block_size":30,
         "action_size":4
@@ -10,7 +10,7 @@ config={
     "enemy":"guard",
     "hero":"knight",
     "target":"princes",
-    "enemy_number":2,
+    "enemy_number":1,
     'colors':
         {
             "princes": (255, 255, 255),
