@@ -9,6 +9,13 @@ from time import time
 from agentQN import AgentQN
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+from agentDQN2 import AgentDQN
+from config import config
+import tensorflow as tf
+from block import Block
+import typing
+
 
 class Game:
     def __init__(self,display):
@@ -16,9 +23,10 @@ class Game:
         self.efctive_plot=[]
     def loop(self):
 
+
         episode=0
-        start_time = time()
-        agent=AgentQN()
+
+        agent=AgentDQN(self.get_state_size(),4)
         effective_table=[]
 
         while True:
@@ -32,31 +40,33 @@ class Game:
             if episode % 100 == 0:
                 self.compute_efective(effective_table)
                 effective_table = []
+            steps=0
             while True:
-
+                steps+=1
                 self.display.fill(config['colors']['black'])
                 action,old_state = agent.get_action(elements_list)
-                self.agent_step(action, elements_list, hero)
+                self.agent_step(action, hero)
                 drawn_elements_list = self.draw_elements(elements_list)
                 #if time()-start_time>60:
                     #print("SAVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     # start_time = self.save_to_file(agent, start_time)
 
                 #result if die
-                if not(self.is_hero_alive(drawn_elements_list)) or score<-200:
-                    reward=0
+                if not(self.is_hero_alive(drawn_elements_list)) or steps>200:
+                    reward=-100
                     score+=reward
-                    agent.upload_results(reward,action,old_state,elements_list)
+                    agent.upload_results(reward,action,old_state,elements_list,True)
                     # print("Przegrana score:"+str(score))
                     effective_table.append(score)
-
+                    agent.replay(32)
                     break
                 #result if win o
                 if self.is_win(drawn_elements_list):
-                    reward = 1
+                    reward = 100
                     score += reward
-                    agent.upload_results(reward,  action, old_state,elements_list)
-                    agent.decrease_exploration_ratio(episode)
+                    agent.upload_results(reward,  action, old_state,elements_list,True)
+                    agent.replay(32)
+                    # agent.decrease_exploration_ratio(episode)
                     effective_table.append(score)
 
 
@@ -68,9 +78,9 @@ class Game:
 
                     break
                 #result if not win or die
-                reward = 0
-                score += reward
-                agent.upload_results(reward,action, old_state,elements_list)
+                reward = -1
+                # score += reward
+                agent.upload_results(reward,  action, old_state,elements_list,False)
 
 
                 clock.tick(config["game"]["fps"])
@@ -85,7 +95,7 @@ class Game:
 
         return start_time
 
-    def agent_step(self,action, elements_list, hero):
+    def agent_step(self,action, hero):
 
         if action == 0:
             if hero.position[1] - config["game"]["block_size"] > 0:
@@ -196,6 +206,10 @@ class Game:
         efective_table=np.asarray(self.efctive_plot)
         plt.plot(np.arange(efective_table.size),efective_table)
         plt.show()
+    def get_state_size(self):
+        return (2+config["enemy_number"])*3
+
+
 
 
 
