@@ -16,15 +16,21 @@ class AgentDQN(object):
     def __init__(self, state_size, action_size):
         self.state_size = int(state_size)
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
-        self.learning_rate = 0.01
-        self.gamma = 0.99
+        self.memory = deque(maxlen=100000)
+        self.learning_rate = 0.001
+        self.gamma = 0.95
+
         self.epsilon = 1
         self.exploration_min = 0.01
-        self.exploration_decay = 0.99
+        self.exploration_decay = 0.995
         self.brain = self._build_model()
 
     def _build_model(self):
+        """
+
+        :return:
+        """
+
         model = Sequential()
         model.add(Dense(24, input_shape=(self.state_size,), activation='relu'))
         model.add(Dense(24, activation='relu'))
@@ -87,3 +93,9 @@ class AgentDQN(object):
 
     def upload_results(self, reward, action, old_state, elements_list, done):
         self.remember(old_state, action,reward , self.convert_to_state(elements_list), done)
+
+
+
+
+
+

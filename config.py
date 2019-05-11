@@ -1,7 +1,7 @@
 config={
     "game":{
-        "height":90,
-        "width":90,
+        "height":120,
+        "width":120,
         "fps":1000000,
         "block_size":30,
         "action_size":4
